@@ -18,8 +18,7 @@ class SeleniumConfig(Config):
 @pytest.fixture(scope='session')
 def app_server():
     """
-    Uruchamia serwer Flask w osobnym wątku.
-    Dzięki temu testy mogą łączyć się z localhost:5000.
+    uruchomienie serwera flask
     """
     app = create_app(SeleniumConfig)
 
@@ -53,7 +52,7 @@ def driver():
     Uruchamia przeglądarkę Chrome.
     """
     options = Options()
-    # options.add_argument("--headless") # Odkomentuj, jeśli nie chcesz widzieć okna
+    # options.add_argument("--headless") 
     options.add_argument("--window-size=1920,1080")
 
     driver = webdriver.Chrome(options=options)
