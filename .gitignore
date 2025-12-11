@@ -38,3 +38,14 @@ nosetests.xml
 venv
 app.db
 microblog.log*
+
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.idea/
+app.db
+selenium_test.db
+instance/
+.env
