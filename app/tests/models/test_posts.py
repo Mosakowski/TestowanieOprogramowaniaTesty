@@ -1,18 +1,18 @@
 import pytest
+from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models import User, Post
-from datetime import datetime, timezone
+from datetime import datetime
 
 
-# app/tests/models/test_posts.py
-
-def test_post_creation_and_relationship(app):
+def test_post_success_creation(app):
     """
-    sprawdzamy stworzenie posta oraz jego przypisywanie do autora
+    sprawdzamy poprawne stworzenie posta i relację z autorem
     """
     with app.app_context():
         u = User(username='blogger', email='blog@example.com')
-        post = Post(body='heelo world', author=u, language='pl')
+        # Tworzymy post przypisany do usera
+        post = Post(body='hello world', author=u, language='pl')
 
         db.session.add_all([u, post])
         db.session.commit()
@@ -21,17 +21,13 @@ def test_post_creation_and_relationship(app):
         assert post.author == u
         assert post.author.username == 'blogger'
 
-        # sprawdzenie czy user ma post
-        posts_query = u.posts.select()
-        user_posts = db.session.scalars(posts_query).all()
-
-        assert post in user_posts
-        assert len(user_posts) == 1
+        assert post.author_id == u.id
+        assert post.id is not None
 
 
-def test_post_attributes(app):
+def test_post_success_attributes(app):
     """
-    testowanie atrybótów posta takich jak czas labo język
+    testowanie atrybutów posta takich jak czas (timestamp)
     """
     with app.app_context():
         u = User(username='tester', email='t@ex.com')
@@ -42,3 +38,35 @@ def test_post_attributes(app):
         assert p.id is not None
         assert isinstance(p.timestamp, datetime)
         assert '<Post' in str(p)
+
+
+def test_post_fail_no_author(app):
+    """
+    próba stworzenia posta bez autora (powinien być błąd bazy)
+    """
+    with app.app_context():
+        p = Post(body="Post sierotka")
+
+        db.session.add(p)
+
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+
+def test_post_fail_null_body(app):
+    """
+    Fpróba stworzenia posta z pustą treścią
+    """
+    with app.app_context():
+        u = User(username='cosiek', email='m@ex.com')
+        db.session.add(u)
+        db.session.commit()
+
+        p = Post(author=u, body=None)  # Brak treści
+        db.session.add(p)
+        with pytest.raises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()

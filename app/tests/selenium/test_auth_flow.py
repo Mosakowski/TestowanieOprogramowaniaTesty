@@ -13,7 +13,7 @@ def generate_user():
 
 def test_full_registration_and_login_flow(driver, base_url):
     """
-    Scenariusz:
+    scenariusz:
     1 Wejdź na stronę logowania do Kliknij Register
     2 Zarejestruj nowego użytkownika
     3 Zaloguj się nowym kontem
